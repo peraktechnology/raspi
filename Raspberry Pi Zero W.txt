@@ -1,0 +1,82 @@
+https://etcher.io/
+https://www.raspberrypi.org/downloads/raspbian/
+
+config.txt
+==========
+dtoverlay=dwc2
+
+cmdline.txt
+===========
+modules-load=dwc2,g_ether
+
+Create file ssh
+
+Username: pi
+Password: raspberry
+
+Sharekan network
+
+Reboot
+
+sudo apt update
+sudo apt upgrade
+
+sudo apt install apache2 mariadb-server php php-mysql
+
+sudo apt-get install dnsmasq hostapd
+
+sudo nano /etc/dhcpcd.conf
+
+interface wlan0
+    static ip_address=192.168.4.1/24
+    nohook wpa_supplicant
+
+sudo mv /etc/dnsmasq.conf /etc/dnsmasq.conf_bak
+
+sudo nano /etc/dnsmasq.conf
+
+interface=wlan0      # Use the require wireless interface - usually wlan0
+  dhcp-range=192.168.4.2,192.168.4.20,255.255.255.0,24h
+
+sudo nano /etc/hostapd/hostapd.conf
+
+interface=wlan0
+driver=nl80211
+ssid=NameOfNetwork
+hw_mode=g
+channel=7
+wmm_enabled=0
+macaddr_acl=0
+auth_algs=1
+ignore_broadcast_ssid=0
+
+sudo nano /etc/default/hostapd
+
+DAEMON_CONF="/etc/hostapd/hostapd.conf"
+
+sudo nano /etc/sysctl.conf
+
+net.ipv4.ip_forward=1
+
+sudo iptables -t nat -A  POSTROUTING -o usb0 -j MASQUERADE
+
+sudo sh -c "iptables-save > /etc/iptables.ipv4.nat"
+
+sudo nano /etc/rc.local
+
+iptables-restore < /etc/iptables.ipv4.nat
+exit 0
+
+sudo service hostapd restart
+
+sudo service dnsmasq restart
+
+sudo service dhcpcd restart
+
+wget http://omattos.com/pifm.tar.gz
+
+tar -zxvf pifm.tar.gz
+
+sudo ./pifm sound.wav 103.3 22050 stereo
+
+https://gist.github.com/gbaman/50b6cca61dd1c3f88f41
